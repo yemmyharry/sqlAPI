@@ -97,7 +97,7 @@ exports.login = (req,res, next) => {
                     const token = jwt.sign({ 
                         email: user.email,
                         userId: user.id
-                    }, 'secret', (err, token)=>{
+                    }, process.env.SECRET , (err, token)=>{
                         res.status(200).send({
                             message: 'Authentication successful',
                             token: token
