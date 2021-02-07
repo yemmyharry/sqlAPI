@@ -7,9 +7,9 @@ exports.save = (req, res, next) => {
         content: req.body.content,
         imageUrl: req.body.image_url,
         categoryId: req.body.category_id,
-        userId: 1
+        userId: req.userData.userId
     }
-
+console.log(req.userData)
     const schema = {
         title:{
             type:"string",
@@ -37,9 +37,10 @@ exports.save = (req, res, next) => {
         })
     }
 
-
-
-    models.Post.create(post)
+    models.Category.findByPk(req.body.category_id)
+    .then(result => {
+        if(result !== null){
+              models.Post.create(post)
     .then((result) => {
         res.status(201).send({
             message: 'Post created successfully',
@@ -54,6 +55,15 @@ exports.save = (req, res, next) => {
             data: err
         })
     })
+        }
+        else{
+            res.status(400).send({
+                message: "Invalid Category ID"
+            })
+        }
+    })
+
+  
 }
 
 
@@ -108,7 +118,7 @@ exports.update = (req, res, next) => {
         categoryId: req.body.category_id
     }
 
-    const userId = 1
+    const userId = req.userData.userId
 
 
     const schema = {
@@ -138,7 +148,11 @@ exports.update = (req, res, next) => {
         })
     }
 
-    models.Post.update(updatedPost, {where: {id: id, userId: userId}})
+
+    models.Category.findByPk(req.body.category_id)
+    .then(result => {
+        if(result !== null){
+         models.Post.update(updatedPost, {where: {id: id, userId: userId}})
     .then((result) => {
         if(result){
               res.status(200).send({
@@ -161,12 +175,22 @@ exports.update = (req, res, next) => {
             data: err
         })
     })
+        }
+        else{
+            res.status(400).send({
+                message: "Invalid Category ID"
+            })
+        }
+    })
+
+
+  
 }
 
 
 exports.destroy = (req, res, next) => {
     const id = req.params.id
-    const userId = 1
+    const userId = req.userData.userId
 
     models.Post.destroy({where:{id: id, userId: userId}})
     .then((result) => {
